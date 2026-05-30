@@ -19,26 +19,12 @@ class LoginPage extends StatelessWidget {
             children: [
               Text("Hi, Welcome back!", style: TextStyle(fontSize: 34)),
               SizedBox(height: 11),
-              Stack(
-                children: [
-                  Center(
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 11),
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(21)
-                      ),
-                    ),
-                  ),
-                  TextField(
-                    controller: emailController,
-                    decoration: mFieldDecor(
-                      hint: "Enter your email here",
-                      label: "Email",
-                    ),
-                  ),
-                ],
+              TextField(
+                controller: emailController,
+                decoration: mFieldDecor(
+                  hint: "Enter your email here",
+                  label: "Email",
+                ),
               ),
               SizedBox(height: 11),
               TextField(
