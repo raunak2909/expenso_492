@@ -96,26 +96,43 @@ class DbHelper {
   Future<int> loginUser({required String email, required String pass}) async {
     Database db = await initDB();
     bool isEmailCorrect = await isEmailAlreadyExists(email: email);
-    if(isEmailCorrect){
-
+    if (isEmailCorrect) {
       List<Map<String, dynamic>> mData = await db.query(
         TABLE_USER,
         where: "$COLUMN_USER_EMAIL = ? and $COLUMN_USER_PASS = ?",
         whereArgs: [email, pass],
       );
 
-      if(mData.isNotEmpty){
+      if (mData.isNotEmpty) {
         int userId = mData[0][COLUMN_USER_ID];
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setInt(AppConstants.PREF_USER_ID, userId);
-        return 1; ///success
+        return 1;
+
+        ///success
       } else {
-        return 3; ///incorrect pass
+        return 3;
+
+        ///incorrect pass
       }
-
     } else {
-      return 2; ///invalid email
-    }
+      return 2;
 
+      ///invalid email
+    }
+  }
+
+  Future<UserModel> getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int uid = prefs.getInt(AppConstants.PREF_USER_ID) ?? 0;
+
+    var db = await initDB();
+    var mData = await db.query(
+      TABLE_USER,
+      where: "$COLUMN_USER_ID = ?",
+      whereArgs: ["$uid"],
+    );
+    
+    return UserModel.fromMap(mData[0]);
   }
 }

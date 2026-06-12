@@ -1,3 +1,4 @@
+import 'package:expenso_492/ui/add_expense/add_expense_page.dart';
 import 'package:expenso_492/ui/dashboard/dashboard_page.dart';
 import 'package:expenso_492/ui/user_on_boarding/login/login_page.dart';
 import 'package:expenso_492/ui/user_on_boarding/sign_up/sign_up_page.dart';
@@ -11,6 +12,7 @@ class AppRoutes{
   static const String LOGIN_PAGE = "/login";
   static const String SIGNUP_PAGE = "/sign_up";
   static const String DASHBOARD_PAGE = "/dashboard";
+  static const String ADD_EXPENSE_PAGE = "/add-expense";
 
 
   static Map<String, WidgetBuilder> mRoutes() => {
@@ -18,6 +20,7 @@ class AppRoutes{
     LOGIN_PAGE : (_) => LoginPage(),
     SIGNUP_PAGE : (_) => SignUpPage(),
     DASHBOARD_PAGE : (_) => DashboardPage(),
+    ADD_EXPENSE_PAGE : (_) => AddExpensePage(),
   };
 
 }
