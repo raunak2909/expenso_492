@@ -148,10 +148,40 @@ class DbHelper {
     print("expense: ${newExp.amt}");
 
     int rowsEffected = await db.insert(TABLE_EXPENSE, newExp.toMap());
+
     return rowsEffected > 0;
   }
 
-  Future<List<ExpenseModel>> fetchAllExp() async {
+  Future<bool> updateBal({required int expType, required num amt}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int uid = prefs.getInt(AppConstants.PREF_USER_ID) ?? 0;
+
+    var db = await initDB();
+
+    List<Map<String, dynamic>> users = await db.query(
+      TABLE_USER,
+      where: "$COLUMN_USER_ID = ?",
+      whereArgs: ["$uid"],
+    );
+    num userBal = users[0][COLUMN_USER_BAL];
+
+    if (expType == 0) {
+      userBal -= amt;
+    } else {
+      userBal += amt;
+    }
+
+    int rowsEffected = await db.update(
+      TABLE_USER,
+      {COLUMN_USER_BAL: userBal},
+      where: "$COLUMN_USER_ID = ?",
+      whereArgs: ["$uid"],
+    );
+
+    return rowsEffected > 0;
+  }
+
+  Future<List<ExpenseModel>> fetchAllExp({int order = 0}) async {
     var db = await initDB();
     List<ExpenseModel> allExp = [];
 
@@ -162,9 +192,10 @@ class DbHelper {
       TABLE_EXPENSE,
       where: "$COLUMN_USER_ID = ?",
       whereArgs: ["$uid"],
+      orderBy: "$COLUMN_EXPENSE_CREATED_AT desc",
     );
 
-    for(Map<String, dynamic> eachData in mData){
+    for (Map<String, dynamic> eachData in mData) {
       allExp.add(ExpenseModel.fromMap(eachData));
     }
 
