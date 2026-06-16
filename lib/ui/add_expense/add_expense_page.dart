@@ -1,6 +1,11 @@
+import 'package:expenso_492/data/local/models/expense_model.dart';
 import 'package:expenso_492/domain/ui_helper/input_field_decoration.dart';
+import 'package:expenso_492/ui/dashboard/bloc/expense_bloc.dart';
+import 'package:expenso_492/ui/dashboard/bloc/expense_event.dart';
+import 'package:expenso_492/ui/dashboard/bloc/expense_state.dart';
 import 'package:flutter/material.dart';
 import 'package:expenso_492/domain/constants/app_constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class AddExpensePage extends StatelessWidget {
@@ -14,7 +19,7 @@ class AddExpensePage extends StatelessWidget {
 
   int selectedCatIndex = -1;
 
-  DateTime selectedDate = DateTime.now();
+  DateTime? selectedDate = DateTime.now();
   DateFormat df = DateFormat.yMMMEd();
 
   @override
@@ -42,7 +47,7 @@ class AddExpensePage extends StatelessWidget {
             ),
             SizedBox(height: 11),
             TextField(
-              controller: titleController,
+              controller: amtController,
               decoration: mFieldDecor(
                 hint: "Enter your Amount here..",
                 label: "Amount",
@@ -137,7 +142,7 @@ class AddExpensePage extends StatelessWidget {
                       child: selectedCatIndex < 0
                           ? Text("Choose a Category")
                           : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Image.asset(
                                   AppConstants
@@ -146,9 +151,9 @@ class AddExpensePage extends StatelessWidget {
                                   width: 40,
                                   height: 40,
                                 ),
-                                Text(" -  ${AppConstants
-                                    .mCategories[selectedCatIndex]
-                                    .name}")
+                                Text(
+                                  " -  ${AppConstants.mCategories[selectedCatIndex].name}",
+                                ),
                               ],
                             ),
                     ),
@@ -157,18 +162,24 @@ class AddExpensePage extends StatelessWidget {
               },
             ),
 
-            SizedBox(
-              height: 11,
-            ),
+            SizedBox(height: 11),
             /////////date///////// (date picker)
             StatefulBuilder(
               builder: (context, ss) {
                 return InkWell(
-                  onTap: () {
-                    showDatePicker(
-                        context: context,
-                        firstDate: DateTime.now().substract(Duration(days: 731)),
-                        lastDate: DateTime.now());
+                  onTap: () async {
+                    DateTime? newDate = await showDatePicker(
+                      initialDate: selectedDate ?? DateTime.now(),
+                      context: context,
+                      firstDate: DateTime.now().subtract(Duration(days: 731)),
+                      lastDate: DateTime.now(),
+                    );
+                    ss(() => {});
+
+                    if (newDate != null) {
+                      selectedDate = newDate;
+                      ss(() => {});
+                    }
                   },
                   child: Container(
                     width: double.infinity,
@@ -179,11 +190,62 @@ class AddExpensePage extends StatelessWidget {
                       border: Border.all(),
                     ),
                     child: Center(
-                      child: Text(df.format(selectedDate))
+                      child: Text(df.format(selectedDate ?? DateTime.now())),
                     ),
                   ),
                 );
               },
+            ),
+            SizedBox(height: 11),
+            BlocListener<ExpenseBloc, ExpenseState>(
+              listener: (context, state) {
+                if (state is ExpenseLoadedState) {
+                  Navigator.pop(context);
+                }
+
+                if (state is ExpenseFailureState) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.errorMsg),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pink.shade200,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    if (selectedCatIndex >= 0) {
+                      ///add expense
+                      context.read<ExpenseBloc>().add(
+                        AddExpenseEvent(
+                          newExpense: ExpenseModel(
+                            title: titleController.text,
+                            remark: remarkController.text,
+                            amt: num.parse(amtController.text),
+                            created_at: (selectedDate ?? DateTime.now())
+                                .millisecondsSinceEpoch,
+                            cat_id:
+                                AppConstants.mCategories[selectedCatIndex].id,
+                            type: selectedTypeIndex,
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please choose a category!!")),
+                      );
+                    }
+                  },
+                  child: Text('Add'),
+                ),
+              ),
             ),
           ],
         ),

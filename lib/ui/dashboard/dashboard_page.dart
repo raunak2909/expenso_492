@@ -1,7 +1,10 @@
 import 'package:expenso_492/domain/constants/app_routes.dart';
+import 'package:expenso_492/ui/dashboard/bloc/expense_bloc.dart';
+import 'package:expenso_492/ui/dashboard/bloc/expense_event.dart';
 import 'package:expenso_492/ui/dashboard/nav_pages/nav_home_page.dart';
 import 'package:expenso_492/ui/dashboard/nav_pages/nav_stats_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -9,6 +12,14 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ExpenseBloc>().add(FetchExpenseEvent());
+  }
+
+
   var mNavPages = [
     NavHomePage(),
     NavStatsPage(),

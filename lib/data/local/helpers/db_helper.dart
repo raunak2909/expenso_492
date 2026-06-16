@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:expenso_492/data/local/models/expense_model.dart';
 import 'package:expenso_492/data/local/models/user_model.dart';
 import 'package:expenso_492/domain/constants/app_constants.dart';
 import 'package:path/path.dart';
@@ -132,7 +133,41 @@ class DbHelper {
       where: "$COLUMN_USER_ID = ?",
       whereArgs: ["$uid"],
     );
-    
+
     return UserModel.fromMap(mData[0]);
+  }
+
+  ///add expense
+  Future<bool> addExpense({required ExpenseModel newExp}) async {
+    var db = await initDB();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int uid = prefs.getInt(AppConstants.PREF_USER_ID) ?? 0;
+    newExp.uid = uid;
+
+    print("expense: ${newExp.amt}");
+
+    int rowsEffected = await db.insert(TABLE_EXPENSE, newExp.toMap());
+    return rowsEffected > 0;
+  }
+
+  Future<List<ExpenseModel>> fetchAllExp() async {
+    var db = await initDB();
+    List<ExpenseModel> allExp = [];
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int uid = prefs.getInt(AppConstants.PREF_USER_ID) ?? 0;
+
+    List<Map<String, dynamic>> mData = await db.query(
+      TABLE_EXPENSE,
+      where: "$COLUMN_USER_ID = ?",
+      whereArgs: ["$uid"],
+    );
+
+    for(Map<String, dynamic> eachData in mData){
+      allExp.add(ExpenseModel.fromMap(eachData));
+    }
+
+    return allExp;
   }
 }
