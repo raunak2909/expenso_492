@@ -13,6 +13,7 @@ class LoginPage extends StatelessWidget {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   bool isLoading = false;
+  bool isLogin = true;
 
 
   ///session maintain
@@ -79,6 +80,12 @@ class LoginPage extends StatelessWidget {
                 ),
                 SizedBox(height: 11),
                 BlocConsumer<UserBloc, UserState>(
+                  buildWhen: (ps, cs){
+                    return isLogin;
+                  },
+                  listenWhen: (ps, cs){
+                    return isLogin;
+                  },
                   listener: (_, state) {
                     if (state is UserLoadingState) {
                       isLoading = true;
@@ -123,6 +130,7 @@ class LoginPage extends StatelessWidget {
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             /// apply the login code here
+                            isLogin = true;
                             context.read<UserBloc>().add(
                               UserLoginEvent(
                                 email: emailController.text,
@@ -140,6 +148,7 @@ class LoginPage extends StatelessWidget {
                 Center(
                   child: InkWell(
                     onTap: () {
+                      isLogin = false;
                       Navigator.pushNamed(context, AppRoutes.SIGNUP_PAGE);
                     },
                     child: Text.rich(

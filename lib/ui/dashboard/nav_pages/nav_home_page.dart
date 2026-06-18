@@ -4,11 +4,13 @@ import 'package:expenso_492/data/local/models/cat_model.dart';
 import 'package:expenso_492/data/local/models/expense_model.dart';
 import 'package:expenso_492/data/local/models/filter_expense_model.dart';
 import 'package:expenso_492/domain/constants/app_constants.dart';
+import 'package:expenso_492/domain/constants/app_routes.dart';
 import 'package:expenso_492/ui/dashboard/bloc/expense_bloc.dart';
 import 'package:expenso_492/ui/dashboard/bloc/expense_event.dart';
 import 'package:expenso_492/ui/dashboard/bloc/expense_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavHomePage extends StatelessWidget {
   List<String> mFilterType = [
@@ -25,6 +27,12 @@ class NavHomePage extends StatelessWidget {
       body: Column(
         children: [
           SizedBox(height: 100),
+          IconButton(onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            ///prefs.setInt(AppConstants.PREF_USER_ID, 0);
+            prefs.clear();
+            Navigator.pushReplacementNamed(context, AppRoutes.LOGIN_PAGE);
+          }, icon: Icon(Icons.logout)),
           Expanded(
             child: BlocBuilder<ExpenseBloc, ExpenseState>(
               builder: (_, state) {
