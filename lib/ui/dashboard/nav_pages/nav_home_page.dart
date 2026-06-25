@@ -27,12 +27,16 @@ class NavHomePage extends StatelessWidget {
       body: Column(
         children: [
           SizedBox(height: 100),
-          IconButton(onPressed: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            ///prefs.setInt(AppConstants.PREF_USER_ID, 0);
-            prefs.clear();
-            Navigator.pushReplacementNamed(context, AppRoutes.LOGIN_PAGE);
-          }, icon: Icon(Icons.logout)),
+          IconButton(
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+
+              ///prefs.setInt(AppConstants.PREF_USER_ID, 0);
+              prefs.clear();
+              Navigator.pushReplacementNamed(context, AppRoutes.LOGIN_PAGE);
+            },
+            icon: Icon(Icons.logout),
+          ),
           Expanded(
             child: BlocBuilder<ExpenseBloc, ExpenseState>(
               builder: (_, state) {
@@ -45,7 +49,10 @@ class NavHomePage extends StatelessWidget {
                 }
 
                 if (state is ExpenseLoadedState) {
-                  List<FilterExpenseModel> allExp = state.expenses;
+                  var allExp = state.expenses;
+                  selectedFilterTypeIndex =
+                      state.filterType;
+                  print("filter index in home : $selectedFilterTypeIndex");
                   return allExp.isNotEmpty
                       ? Padding(
                           padding: const EdgeInsets.all(11.0),
@@ -65,48 +72,50 @@ class NavHomePage extends StatelessWidget {
                                   SizedBox(
                                     width: 180,
                                     child: DropdownMenu(
-                                      onSelected: (index) {
-                                        selectedFilterTypeIndex = index!;
-                                        context.read<ExpenseBloc>().add(
-                                          FetchExpenseEvent(
-                                            filterType: selectedFilterTypeIndex,
-                                          ),
-                                        );
-                                      },
-                                      initialSelection: selectedFilterTypeIndex,
-                                      dropdownMenuEntries: List.generate(
-                                        mFilterType.length,
-                                        (index) {
-                                          return DropdownMenuEntry(
-                                            value: index,
-                                            label: mFilterType[index],
+                                        onSelected: (index) {
+                                          selectedFilterTypeIndex = index!;
+                                          context.read<ExpenseBloc>().add(
+                                            FetchExpenseEvent(
+                                              filterType:
+                                                  selectedFilterTypeIndex,
+                                            ),
                                           );
                                         },
-                                      ),
-                                      width: double.infinity,
-                                      label: Text("Type"),
-                                      inputDecorationTheme:
-                                          InputDecorationTheme(
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(21),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(21),
-                                              borderSide: BorderSide(
-                                                color: Colors.pink.shade200,
-                                                width: 2,
+                                        initialSelection:
+                                            selectedFilterTypeIndex,
+                                        dropdownMenuEntries: List.generate(
+                                          mFilterType.length,
+                                          (index) {
+                                            return DropdownMenuEntry(
+                                              value: index,
+                                              label: mFilterType[index],
+                                            );
+                                          },
+                                        ),
+                                        width: double.infinity,
+                                        label: Text("Type"),
+                                        inputDecorationTheme:
+                                            InputDecorationTheme(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(21),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(21),
+                                                borderSide: BorderSide(
+                                                  color: Colors.pink.shade200,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(21),
                                               ),
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(21),
-                                            ),
-                                          ),
-                                    ),
+                                      ),
                                   ),
                                 ],
                               ),

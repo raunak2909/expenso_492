@@ -11,7 +11,6 @@ import 'package:intl/intl.dart';
 class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   DbHelper dbHelper;
 
-
   ExpenseBloc({required this.dbHelper}) : super(ExpenseInitialState()) {
     on<AddExpenseEvent>((event, emit) async {
       emit(ExpenseLoadingState());
@@ -20,8 +19,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
 
       if (isAdded) {
         ///update the balance
-        bool check = await dbHelper.updateBal(expType: event.newExpense.type, amt: event.newExpense.amt);
-        if(check){
+        bool check = await dbHelper.updateBal(
+          expType: event.newExpense.type,
+          amt: event.newExpense.amt,
+        );
+        if (check) {
           /// do it yourself
         }
         List<ExpenseModel> allExpenses = await dbHelper.fetchAllExp();
@@ -35,7 +37,15 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     on<FetchExpenseEvent>((event, emit) async {
       emit(ExpenseLoadingState());
       List<ExpenseModel> allExpenses = await dbHelper.fetchAllExp();
-      emit(ExpenseLoadedState(expenses: filterExpense(allExp: allExpenses, filterType: event.filterType)));
+      emit(
+        ExpenseLoadedState(
+          expenses: filterExpense(
+            allExp: allExpenses,
+            filterType: event.filterType,
+          ),
+          filterType: event.filterType,
+        ),
+      );
     });
   }
 
@@ -43,19 +53,22 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
   /// 1-> month wise
   /// 2-> year wise
   /// 3-> category wise
-  List<FilterExpenseModel> filterExpense({required List<ExpenseModel> allExp, int filterType = 0}) {
+  List<FilterExpenseModel> filterExpense({
+    required List<ExpenseModel> allExp,
+    int filterType = 0,
+  }) {
     List<FilterExpenseModel> mFilteredExp = [];
 
-    if(filterType<3){
+    if (filterType < 3) {
       ///date, month, year wise
 
       /// date format
       DateFormat df = DateFormat.yMMMMEEEEd();
 
-      if(filterType==1){
+      if (filterType == 1) {
         /// month format
         df = DateFormat.yMMMM();
-      } else if(filterType==2){
+      } else if (filterType == 2) {
         /// year format
         df = DateFormat.y();
       }
@@ -108,7 +121,7 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     } else {
       /// cat wise
 
-      for(CatModel eachCat in AppConstants.mCategories){
+      for (CatModel eachCat in AppConstants.mCategories) {
         num eachCatAmt = 0;
         List<ExpenseModel> eachCatExp = [];
 
@@ -130,14 +143,16 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
           }
         }
 
-        if(eachCatExp.isNotEmpty){
-          mFilteredExp.add(FilterExpenseModel(
+        if (eachCatExp.isNotEmpty) {
+          mFilteredExp.add(
+            FilterExpenseModel(
               title: eachCat.name,
               totalAmt: eachCatAmt,
-              expenses: eachCatExp));
+              expenses: eachCatExp,
+            ),
+          );
         }
       }
-
     }
 
     return mFilteredExp;

@@ -8,7 +8,8 @@ class ExpenseInitialState extends ExpenseState{}
 class ExpenseLoadingState extends ExpenseState{}
 class ExpenseLoadedState extends ExpenseState{
   List<FilterExpenseModel> expenses;
-  ExpenseLoadedState({required this.expenses});
+  int filterType;
+  ExpenseLoadedState({required this.expenses, this.filterType = 0});
 }
 class ExpenseFailureState extends ExpenseState{
   String errorMsg;
